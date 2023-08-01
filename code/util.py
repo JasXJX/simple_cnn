@@ -2,6 +2,7 @@ from sklearn.model_selection import train_test_split
 from PIL import Image
 import numpy as np
 import os
+import torch
 import torch.nn as nn
 from torch.nn.modules.module import Module
 import torch.nn.functional as F
@@ -31,18 +32,14 @@ def load_images(img_folder: str) -> tuple[np.ndarray, np.ndarray,
     return x_train, y_train, x_test, y_test
 
 
-def preprocess(imgs: np.ndarray) -> np.ndarray:
-    to_tensor = T.Compose([
-        T.ToTensor()
-    ])
-    data = to_tensor(imgs)
-    mean = data.mean()
-    std = data.std()
+def preprocess(imgs: torch.Tensor) -> torch.Tensor:
+    mean = imgs.mean()
+    std = imgs.std()
     normalize = T.Compose([  # best so far: with color jitter
         T.ColorJitter(),
         T.Normalize(mean, std)
     ])
-    return normalize(data)
+    return normalize(imgs)
 
 
 class CNN(Module):
