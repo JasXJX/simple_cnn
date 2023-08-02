@@ -26,10 +26,10 @@ def load_images(img_folder: str) -> tuple[np.ndarray, np.ndarray,
         with Image.open(file) as f:
             imgs.append(np.asarray(f))
     x, y = np.asarray(imgs), np.asarray(labels)
-    x_train, y_train, x_test, y_test = train_test_split(x, y,
+    x_train, x_test, y_train, y_test = train_test_split(x, y,
                                                         test_size=0.2,
                                                         random_state=3)
-    return x_train, y_train, x_test, y_test
+    return x_train, x_test, y_train, y_test
 
 
 def preprocess(imgs: torch.Tensor) -> torch.Tensor:
