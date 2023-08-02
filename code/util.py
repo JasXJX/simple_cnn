@@ -8,6 +8,8 @@ from torch.nn.modules.module import Module
 import torch.nn.functional as F
 import torchvision.transforms as T
 
+torch.manual_seed(3)
+
 
 def load_images(img_folder: str) -> tuple[np.ndarray, np.ndarray,
                                           np.ndarray, np.ndarray]:
@@ -21,10 +23,10 @@ def load_images(img_folder: str) -> tuple[np.ndarray, np.ndarray,
         for line in f:
             label = line.strip().split("\t")
             if len(label) != 1:
-                labels.append(int(label[1]))
+                labels.append(int(label[1]) - 1)
     for file in files:
         with Image.open(file) as f:
-            imgs.append(np.asarray(f))
+            imgs.append([np.asarray(f)])
     x, y = np.asarray(imgs), np.asarray(labels)
     x_train, x_test, y_train, y_test = train_test_split(x, y,
                                                         test_size=0.2,
@@ -81,4 +83,4 @@ class CNN(Module):
         x = F.dropout(x, p=0.75)
         x = F.relu(x)
         x = F.relu(self.fc2(x))
-        return F.log_softmax(self.fc3(x), -1)
+        return F.softmax(self.fc3(x))
