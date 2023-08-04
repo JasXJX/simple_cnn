@@ -6,12 +6,16 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 torch.manual_seed(3)
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 
 def train(features_src: np.ndarray, labels_src: np.ndarray, model, ep_n, lr):
     features, labels = util.preprocess(torch.asarray(features_src,
-                                                     dtype=torch.float)), \
-                       torch.asarray(labels_src, dtype=torch.long)
+                                                     dtype=torch.float,
+                                                     device=device)), \
+                       torch.asarray(labels_src,
+                                     dtype=torch.long,
+                                     device=device)
     train_set = TensorDataset(features, labels)
     train_loader = DataLoader(train_set, batch_size=5, shuffle=False)
     loss_func = torch.nn.CrossEntropyLoss()
@@ -28,11 +32,28 @@ def train(features_src: np.ndarray, labels_src: np.ndarray, model, ep_n, lr):
             optim.step()
             loss_vals.append(loss.item() * len(inputs))
         avg_loss.append(sum(loss_vals)/len(features))
+        tqdm.write(f"Training Accuracy: {test(features, labels, model)}")
     plt.plot(avg_loss)
+    plt.show()
     return model
+
+
+def test(inputs, labels, model) -> float:
+    model.eval()
+    # labels = labels.to(torch.device('cpu'))
+    # pred = model(inputs).to(torch.device('cpu'))
+
+    pred = model(inputs)
+    _, pred_class = torch.max(pred, dim=-1)
+    acc = sum(pred_class == labels) / len(labels)
+    return acc
 
 
 if __name__ == "__main__":
     x_train, x_test, y_train, y_test = util.load_images("data")
     model = util.CNN()
-    model = train(x_train, y_train, model, ep_n=1000, lr=0.001)
+    model.to(device)
+    model = train(x_train, y_train, model, ep_n=500, lr=0.0001)
+    x_test_t, y_test_t = torch.asarray(x_test, dtype=torch.float).to(device), \
+        torch.asarray(y_test, dtype=torch.long).to(device)
+    print(test(x_test_t, y_test_t, model))

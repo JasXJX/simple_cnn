@@ -83,4 +83,4 @@ class CNN(Module):
         x = F.dropout(x, p=0.75)
         x = F.relu(x)
         x = F.relu(self.fc2(x))
-        return F.softmax(self.fc3(x))
+        return F.softmax(self.fc3(x), -1)
