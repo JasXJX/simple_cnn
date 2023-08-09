@@ -38,8 +38,8 @@ def preprocess(imgs: torch.Tensor) -> torch.Tensor:
     mean = imgs.mean()
     std = imgs.std()
     normalize = T.Compose([  # best so far: with color jitter
-        T.ColorJitter(),
-        T.Normalize(mean, std)
+        T.Normalize(mean, std),
+        T.ColorJitter()
     ])
     return normalize(imgs)
 
@@ -80,7 +80,7 @@ class CNN(Module):
         x = self.fc1(x)
 
         # best so far is 0.75; 80% at epoch 419 with 3 linear layers
-        x = F.dropout(x, p=0.75)
+        # x = F.dropout(x, p=0.6)
         x = F.relu(x)
         x = F.relu(self.fc2(x))
-        return F.softmax(self.fc3(x), -1)
+        return torch.sigmoid(self.fc3(x))

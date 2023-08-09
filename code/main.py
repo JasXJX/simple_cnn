@@ -10,12 +10,20 @@ device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 
 def train(features_src: np.ndarray, labels_src: np.ndarray, model, ep_n, lr):
-    features, labels = util.preprocess(torch.asarray(features_src,
-                                                     dtype=torch.float,
-                                                     device=device)), \
+    # features, labels = util.preprocess(torch.asarray(features_src,
+    #                                                  dtype=torch.float,
+    #                                                  device=device)), \
+    #                    torch.asarray(labels_src,
+    #                                  dtype=torch.long,
+    #                                  device=device)
+
+    features, labels = torch.asarray(features_src,
+                                     dtype=torch.float,
+                                     device=device), \
                        torch.asarray(labels_src,
                                      dtype=torch.long,
                                      device=device)
+
     train_set = TensorDataset(features, labels)
     train_loader = DataLoader(train_set, batch_size=5, shuffle=False)
     loss_func = torch.nn.CrossEntropyLoss()
@@ -32,7 +40,7 @@ def train(features_src: np.ndarray, labels_src: np.ndarray, model, ep_n, lr):
             optim.step()
             loss_vals.append(loss.item() * len(inputs))
         avg_loss.append(sum(loss_vals)/len(features))
-        tqdm.write(f"Training Accuracy: {test(features, labels, model)}")
+        # tqdm.write(f"Training Accuracy: {test(features, labels, model)}")
     plt.plot(avg_loss)
     plt.show()
     return model
@@ -45,7 +53,7 @@ def test(inputs, labels, model) -> float:
 
     pred = model(inputs)
     _, pred_class = torch.max(pred, dim=-1)
-    acc = sum(pred_class == labels) / len(labels)
+    acc = torch.sum(pred_class == labels).item() / len(labels)
     return acc
 
 
@@ -56,4 +64,4 @@ if __name__ == "__main__":
     model = train(x_train, y_train, model, ep_n=500, lr=0.0001)
     x_test_t, y_test_t = torch.asarray(x_test, dtype=torch.float).to(device), \
         torch.asarray(y_test, dtype=torch.long).to(device)
-    print(test(x_test_t, y_test_t, model))
+    print(f"Test set score: {test(x_test_t, y_test_t, model)}")
