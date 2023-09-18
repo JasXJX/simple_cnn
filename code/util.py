@@ -80,7 +80,8 @@ class CNN(Module):
         x = self.fc1(x)
 
         # best so far is 0.75; 80% at epoch 419 with 3 linear layers
-        # x = F.dropout(x, p=0.6)
         x = F.relu(x)
+        x = F.dropout(x, p=0.6)
         x = F.relu(self.fc2(x))
+        # x = F.dropout(x, p=0.6)
         return torch.sigmoid(self.fc3(x))
