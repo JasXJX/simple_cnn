@@ -11,6 +11,12 @@ ENV PYTHONUNBUFFERED=1
 COPY requirements.txt .
 RUN python -m pip install -r requirements.txt
 
+RUN apt update && apt -y install build-essential \
+                                 libgmp-dev \
+                                 libmpfr-dev \
+                                 libmpc-dev
+RUN python -m pip install gmpy2
+
 WORKDIR /app
 COPY . /app
 
