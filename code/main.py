@@ -6,7 +6,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 torch.manual_seed(3)
-if torch.cuda.is_available() :
+if torch.cuda.is_available():
     device = 'cuda:0'
 elif torch.backends.mps.is_available():
     device = 'mps'
